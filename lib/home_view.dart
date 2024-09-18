@@ -14,8 +14,7 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("Home_view Rebuilding");
-    final appProvider = Provider.of<AppProvider>(context, listen: false);
+    print("HomeView Building Once");
 
     final List<Widget> pages = [
       const Home(),
@@ -25,36 +24,46 @@ class HomeView extends StatelessWidget {
     ];
 
     return Scaffold(
-      body: pages[appProvider.navigationIndex],
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.transparent,
-        buttonBackgroundColor: Colors.green.shade700,
-        color: Colors.green.shade700,
-        items: <Widget>[
-          Icon(Icons.home, size: 30.sp, color: Colors.white),
-          badges.Badge(
-            badgeContent: Center(
-              child: Text(
-                '2',
-                style: TextStyle(color: Colors.white, fontSize: 12.sp),
+      // Only rebuild the body when the navigation index changes
+      body: Consumer<AppProvider>(
+        builder: (context, appProvider, child) {
+          return pages[appProvider.navigationIndex];
+        },
+      ),
+      bottomNavigationBar: Consumer<AppProvider>(
+        builder: (context, appProvider, child) {
+          return CurvedNavigationBar(
+            backgroundColor: Colors.transparent,
+            buttonBackgroundColor: Colors.green.shade700,
+            color: Colors.green.shade700,
+            items: <Widget>[
+              Icon(Icons.home, size: 30.sp, color: Colors.white),
+              badges.Badge(
+                badgeContent: Center(
+                  child: Text(
+                    '2',
+                    style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                  ),
+                ),
+                child: Icon(Icons.favorite, size: 26.sp, color: Colors.white),
               ),
-            ),
-            child: Icon(Icons.favorite, size: 26.sp, color: Colors.white),
-          ),
-          badges.Badge(
-            badgeContent: Center(
-              child: Text(
-                '2',
-                style: TextStyle(color: Colors.white, fontSize: 12.sp),
+              badges.Badge(
+                badgeContent: Center(
+                  child: Text(
+                    '2',
+                    style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                  ),
+                ),
+                child:
+                    Icon(Icons.shopping_cart, size: 26.sp, color: Colors.white),
               ),
-            ),
-            child: Icon(Icons.shopping_cart, size: 26.sp, color: Colors.white),
-          ),
-          Icon(Icons.person, size: 30.sp, color: Colors.white),
-        ],
-        onTap: (index) {
-          // Update the current index using provider
-          appProvider.setNavigationIndex(index);
+              Icon(Icons.person, size: 30.sp, color: Colors.white),
+            ],
+            onTap: (index) {
+              // Update the current index using provider
+              appProvider.setNavigationIndex(index);
+            },
+          );
         },
       ),
     );
