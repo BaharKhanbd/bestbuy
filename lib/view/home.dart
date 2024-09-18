@@ -1,11 +1,28 @@
-import 'package:bestbuy/controller/app_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
+import 'package:bestbuy/controller/app_provider.dart';
+import 'package:bestbuy/controller/product_category_controller.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch data when widget is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final categoryProvider =
+          Provider.of<ProductCategoryController>(context, listen: false);
+      categoryProvider.getPostApi();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,34 +115,90 @@ class Home extends StatelessWidget {
               },
             ),
           ),
-          Consumer<AppProvider>(
-            builder: (context, provider, _) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: imageSliders.map((url) {
-                  int index = imageSliders.indexOf(url);
-                  return Container(
-                    width: 8,
-                    height: 8,
-                    margin: EdgeInsets.symmetric(
-                      vertical: 10.h,
-                      horizontal: 3.w,
-                    ),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: provider.carouselIndex == index
-                          ? const Color.fromRGBO(0, 0, 0, 0.9)
-                          : const Color.fromRGBO(0, 0, 0, 0.4),
+          Consumer<AppProvider>(builder: (context, provider, _) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: imageSliders.map((url) {
+                int index = imageSliders.indexOf(url);
+                return Container(
+                  width: 8,
+                  height: 8,
+                  margin: EdgeInsets.symmetric(
+                    vertical: 10.h,
+                    horizontal: 3.w,
+                  ),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: provider.carouselIndex == index
+                        ? const Color.fromRGBO(0, 0, 0, 0.9)
+                        : const Color.fromRGBO(0, 0, 0, 0.4),
+                  ),
+                );
+              }).toList(),
+            );
+          }),
+          SizedBox(height: 10.h),
+          Padding(
+            padding: EdgeInsets.only(left: 12.w),
+            child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Categories",
+                  style:
+                      TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                )),
+          ),
+          SizedBox(height: 14.h),
+          Consumer<ProductCategoryController>(
+              builder: (context, categoryProvider, child) {
+            if (categoryProvider.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            return SizedBox(
+              height: 90.h,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: categoryProvider.categoryList.length,
+                itemBuilder: (context, index) {
+                  var category = categoryProvider.categoryList[index];
+
+                  return GestureDetector(
+                    onTap: () {},
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Material(
+                            elevation: 1,
+                            borderRadius: BorderRadius.circular(50.r),
+                            child: CircleAvatar(
+                              radius: 30.r,
+                              backgroundColor: Colors.white,
+                              backgroundImage: category.image != null
+                                  ? NetworkImage(category.image!)
+                                  : const AssetImage(
+                                          'assets/images/no image.png')
+                                      as ImageProvider, // Fallback image
+                              onBackgroundImageError: (error, stackTrace) =>
+                                  const Icon(Icons.error), // Handle error
+                            )),
+                        Text(
+                          category.name!,
+                          overflow: TextOverflow.ellipsis, // Handle overflow
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 12.sp, fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   );
-                }).toList(),
-              );
-            },
-          ),
-          SizedBox(
-            height: 10.h,
-          ),
-          Text("data"),
+                },
+                separatorBuilder: (context, index) => SizedBox(width: 12.w),
+              ),
+            );
+          })
         ],
       ),
     );

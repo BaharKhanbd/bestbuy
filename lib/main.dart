@@ -1,4 +1,5 @@
 import 'package:bestbuy/controller/app_provider.dart';
+import 'package:bestbuy/controller/product_category_controller.dart';
 import 'package:bestbuy/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,6 +8,7 @@ import 'package:provider/provider.dart';
 void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => AppProvider()),
+    ChangeNotifierProvider(create: (_) => ProductCategoryController()),
   ], child: const MyApp()));
 }
 
